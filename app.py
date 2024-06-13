@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 
-load_dotenv()
+# load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 
@@ -151,6 +151,7 @@ if dosya_türü == "PDF Dosyası":
                 st.markdown(response)
 
         else:
+
             with open("temp.pdf", "wb") as file:
                 file.write(yüklenen_dosya.getbuffer())
 
@@ -164,7 +165,10 @@ if dosya_türü == "PDF Dosyası":
                                     - Check whether the uploaded text is a resume, if the image is not a resume, give a warning message saying "Please upload a resume sample".
                                     - Since the needs of each department are different, evaluate the compatibility between the specified department and the uploaded resume.
                                     - Minimum required experince is must be 5 years. The users'experince time is {deneyim_süresi} year. If it is less then {deneyim_süresi} years, give info about it.
-                                    - Give me the percentage of  match if the resume matches the job description.
+                                    - Give me the percentage of  match if the resume matches the {departman}. While doing that, you should use these parameters:
+                                        > 
+                                        >
+                                        >
                                     - After percentage, highlight the strengths and weaknesses of the applicant in relation to the specified job requirements.
                                     - Final response should be in Markdown format, style is up to you, i count on you.
                                     - Output must be in Turkish, other languages are not acceptable.
@@ -184,7 +188,49 @@ if dosya_türü == "PDF Dosyası":
 
 
 
-# else:
+else:
+    yüklenen_dosya_2 = st.sidebar.file_uploader("Lütfen Görüntü Dosyanızı Yükleyin!", type=["jpg", "jpeg", "png"])
+
+    if yüklenen_dosya_2:
+        st.sidebar.image(yüklenen_dosya_2, caption="Yüklenen Görüntü")
+
+        image_parts = [
+            {
+                "mime_type": "image/jpeg",
+                "data": yüklenen_dosya_2.getvalue(),
+            },
+        ]
+
+        prompt = image_parts[0], f"""You are an experienced Human Resources Specialist. Staff will be recruited for {departman}. 
+                                        I want you to review the resume sample in the image and comment
+
+                                        You should pay attention to some points when commenting:
+                                            - Check whether the uploaded text is a resume, if the image is not a resume, give a warning message saying "Please upload a resume sample".
+                                            - Since the needs of each department are different, evaluate the compatibility between the specified department and the uploaded resume.
+                                            - Minimum required experince is must be 5 years. The users'experince time is {deneyim_süresi} year. If it is less then {deneyim_süresi} years, give info about it.
+                                            - Give me the percentage of  match if the resume matches the {departman}. While doing that, you should use these parameters:
+                                                > 
+                                                >
+                                                >
+                                            - After percentage, highlight the strengths and weaknesses of the applicant in relation to the specified job requirements.
+                                            - Final response should be in Markdown format, style is up to you, i count on you.
+                                            - Output must be in Turkish, other languages are not acceptable.
+                                            """
+
+        if st.button("Yapay Zekaya Sor"):
+            status_placeholder = st.empty()
+            status_placeholder.info("Yapay Zeka Modeli Çalışıyor...")
+
+            response = gemini_get_response(prompt)
+            st.markdown(response)
+
+            status_placeholder.success("Yapay Zeka Modeli Çalışması Tamamlandı!")
+            st.download_button("Sonuçları İndir", response, "sonuçlar.txt", "txt")
+
+
+
+
+
 
 
 
